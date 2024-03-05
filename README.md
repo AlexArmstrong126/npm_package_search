@@ -2,10 +2,8 @@ NPM Search Registry Project
 This project is a web application built with React and Vite that allows users to easily search for information regarding npm packages using the npm registry API.
 
 Features
-Search for npm packages by name
+Search for npm packages by name and version
 View detailed information about the packages
-Direct links to the npm package page, homepage, repository, and issue tracker
-Responsive design for use on various devices
 Getting Started
 To get started with the project, follow these steps:
 
