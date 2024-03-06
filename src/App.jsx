@@ -10,6 +10,7 @@ function App() {
     generateDependenciesList: false,
   });
   const [npmData, setNpmData] = useState();
+  const [packageLicense, setPackageLicense] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -28,6 +29,11 @@ function App() {
     }
   };
 
+  const copyText = (text) => {
+    navigator.clipboard.writeText(text);
+    console.log("Copied text");
+  };
+
   const fetchData = async () => {
     setIsLoading(true);
     const endpoint = `https://registry.npmjs.org/${formData.package}/${formData.version}`;
@@ -35,48 +41,53 @@ function App() {
     const data = await res.json();
     console.log(data);
     setNpmData(data);
+    fetchOptions(formData, data);
     setIsLoading(false);
   };
 
-  const fetchPackageLicense = () => {
-    const repoUrl = npmData.repository.url;
-    const owner = repoUrl.match(/github\.com\/([^/]+)\//);
-    const ownerName = owner ? owner[1] : null;
-    console.log(ownerName);
+  const fetchPackageLicense = (data) => {
+    const { url } = data.repository;
+    if (data) {
+      const repoUrl = url;
+      const owner = repoUrl.match(/github\.com\/([^/]+)\//);
+      const ownerName = owner ? owner[1] : null;
+      console.log(ownerName);
 
-    fetch(
-      `https://api.github.com/repos/${ownerName}/${formData.package}/contents/LICENSE`,
-      {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+      fetch(
+        `https://api.github.com/repos/${ownerName}/${formData.package}/license`,
+        {
+          headers: {
+            Accept: "application/vnd.github.v3+json",
+          },
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Decode Base64 content
-        const licenseContent = atob(data.content);
-        // var content = data.filter((object) => {
-        //   return object.name === "LICENSE";
-        // });
-        console.log("license", licenseContent);
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((licenseData) => {
+          // Decode Base64 content
+          const licenseContent = atob(licenseData.content);
+          setPackageLicense(licenseContent);
+          console.log("license", licenseContent);
+        })
+        .catch((error) => {
+          console.error("There was a problem with the fetch operation:", error);
+        });
+    }
   };
-  const fetchOptions = async ({
-    generateDependenciesLicense,
-    generatePackageLicense,
-    generateDependenciesList,
-  }) => {
+  const fetchOptions = async (
+    {
+      generateDependenciesLicense,
+      generatePackageLicense,
+      generateDependenciesList,
+    },
+    data
+  ) => {
     if (generatePackageLicense) {
-      fetchPackageLicense();
+      fetchPackageLicense(data);
     }
     // console.log(
     //   generateDependenciesLicense,
@@ -88,7 +99,7 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     fetchData();
-    fetchOptions(formData);
+
     console.log("Form submitted with data:", formData);
     // You can perform any further actions here, such as sending the data to a server
   };
@@ -176,11 +187,29 @@ function App() {
 
           <button type="submit">Submit</button>
         </form>
-        {/* {isLoading ? (
+        {isLoading ? (
           <h1>loading...</h1>
         ) : (
-          npmData && generatePackageTemplate(npmData)
-        )} */}
+          // npmData && generatePackageTemplate(npmData)
+          npmData && <h1>loaded</h1>
+        )}
+        {isLoading && formData.generatePackageLicense ? (
+          <h1>loading...</h1>
+        ) : (
+          // npmData && generatePackageTemplate(npmData)
+          packageLicense && (
+            <>
+              <p>{packageLicense}</p>
+              <button
+                onClick={() => {
+                  copyText(packageLicense);
+                }}
+              >
+                copy
+              </button>
+            </>
+          )
+        )}
       </div>
     </>
   );
