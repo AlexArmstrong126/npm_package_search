@@ -5,28 +5,90 @@ function App() {
   const [formData, setFormData] = useState({
     package: "",
     version: "",
+    generateDependenciesLicense: false,
+    generatePackageLicense: false,
+    generateDependenciesList: false,
   });
-
   const [npmData, setNpmData] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    if (name.includes("generate")) {
+      const { checked } = e.target;
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: checked,
+      }));
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
 
   const fetchData = async () => {
-    const endpoint = `http://registry.npmjs.com/${formData.package}/${formData.version}`;
+    setIsLoading(true);
+    const endpoint = `https://registry.npmjs.org/${formData.package}/${formData.version}`;
     const res = await fetch(endpoint);
     const data = await res.json();
     console.log(data);
     setNpmData(data);
+    setIsLoading(false);
+  };
+
+  const fetchPackageLicense = () => {
+    const repoUrl = npmData.repository.url;
+    const owner = repoUrl.match(/github\.com\/([^/]+)\//);
+    const ownerName = owner ? owner[1] : null;
+    console.log(ownerName);
+
+    fetch(
+      `https://api.github.com/repos/${ownerName}/${formData.package}/contents/LICENSE`,
+      {
+        headers: {
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Decode Base64 content
+        const licenseContent = atob(data.content);
+        // var content = data.filter((object) => {
+        //   return object.name === "LICENSE";
+        // });
+        console.log("license", licenseContent);
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  };
+  const fetchOptions = async ({
+    generateDependenciesLicense,
+    generatePackageLicense,
+    generateDependenciesList,
+  }) => {
+    if (generatePackageLicense) {
+      fetchPackageLicense();
+    }
+    // console.log(
+    //   generateDependenciesLicense,
+    //   generatePackageLicense,
+    //   generateDependenciesList
+    // );
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     fetchData();
+    fetchOptions(formData);
     console.log("Form submitted with data:", formData);
     // You can perform any further actions here, such as sending the data to a server
   };
@@ -44,12 +106,16 @@ function App() {
     generateDependencies(dependencies);
     return (
       <>
-        <h1>{name}</h1>
-        <p>{license}</p>
-        {generateDependencies(dependencies).map((deps) => {
-          return <p>{deps}</p>;
-        })}
-        <p>{repository.url}</p>
+        {/* <h1>Name: {name}</h1>
+        <p>Licence {license}</p>
+        <h3>Dependencies</h3> */}
+        {/* <ul>
+          {generateDependencies(dependencies).map((deps) => {
+            return <li key={deps}>{deps}</li>;
+          })}
+        </ul> */}
+        {/* 
+        <p>{repository.url}</p> */}
       </>
     );
   };
@@ -75,9 +141,46 @@ function App() {
             onChange={handleChange}
             value={formData.version}
           />
+          <div className="form__options">
+            <label htmlFor="generateDependencyLicense">
+              Generate Dependecy licences
+            </label>
+            <input
+              type="checkbox"
+              id="generateDependency"
+              name="generateDependenciesLicense"
+              onClick={handleChange}
+              value={formData.generateDependenciesLicense}
+            />
+            <label htmlFor="generatePackageLicence">
+              Generate Package licences
+            </label>
+            <input
+              type="checkbox"
+              id="generatePackageLicence"
+              name="generatePackageLicense"
+              onClick={handleChange}
+              value={formData.generatePackageLicense}
+            />
+            <label htmlFor="generateDependencyList">
+              Generate Dependecy list
+            </label>
+            <input
+              type="checkbox"
+              id="generateDependencyList"
+              name="generateDependenciesList"
+              onClick={handleChange}
+              value={formData.generateDependenciesList}
+            />
+          </div>
+
           <button type="submit">Submit</button>
         </form>
-        {npmData && generatePackageTemplate(npmData)}
+        {/* {isLoading ? (
+          <h1>loading...</h1>
+        ) : (
+          npmData && generatePackageTemplate(npmData)
+        )} */}
       </div>
     </>
   );
