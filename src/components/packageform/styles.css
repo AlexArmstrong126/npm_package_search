@@ -1,0 +1,69 @@
+.infoContainer {
+  display: flex;
+  align-items: flex-start;
+}
+
+.info__package {
+  flex: 1; /* Make the smaller div expand to fill available space */
+}
+.info__dependencies {
+  flex: 1; /* Make the larger div expand to fill available space */
+  border: 1px solid #ccc; /* Optional: Add border for visualization */
+}
+
+.devDependencies {
+  display: flex;
+  flex-direction: column;
+}
+.info__packageLicense {
+  flex: 1; /* Make the smaller div expand to fill available space */
+}
+.info__packageLicenseHeader {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+}
+
+.form__container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 8px;
+}
+
+label,
+input {
+  display: flex;
+  flex-direction: column;
+}
+
+.copy__btn {
+  color: #252a34;
+  background-color: #ff2e63;
+  font-size: large;
+  border-radius: 5px;
+  border: #ff2e63;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-weight: 550;
+}
+
+.form__options {
+  display: flex;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.submitBtn {
+  color: #252a34;
+  background-color: #ff2e63;
+  font-size: large;
+  border-radius: 5px;
+  border: #ff2e63;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-weight: 550;
+}

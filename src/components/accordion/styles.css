@@ -1,0 +1,40 @@
+.accordion-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  cursor: pointer;
+  gap: 1.5rem;
+}
+
+.accordion-title,
+.accordion-content {
+  padding: 1rem;
+}
+
+.accordion__title {
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.accordion__btn {
+  font-size: xx-large;
+  flex-direction: row;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media screen and (max-width: 700px) {
+  body {
+    font-size: 18px;
+  }
+
+  .accordion {
+    width: 90%;
+  }
+}
